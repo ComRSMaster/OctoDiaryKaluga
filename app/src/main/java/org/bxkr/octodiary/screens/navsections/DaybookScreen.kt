@@ -475,22 +475,29 @@ fun EventItem(event: Event) {
                                     Text(
                                         stringResource(R.string.lesson_location),
                                         Modifier
-                                            .padding(end = 3.dp)
+                                            .padding(end = 4.dp)
                                             .alpha(0.8f)
                                     )
                                     Text(event.roomNumber)
                                 }
                             }
                             if (event.homework != null && event.homework.descriptions.isNotEmpty()) {
-                                Row {
+                                Column {
                                     Text(
                                         stringResource(R.string.homework),
-                                        Modifier
-                                            .padding(end = 3.dp)
-                                            .alpha(0.8f)
+                                        Modifier.alpha(0.8f)
                                     )
-                                    Column {
-                                        event.homework.descriptions.forEach { Text(it) }
+                                    Column(modifier = Modifier.padding(4.dp)) {
+                                        event.homework.descriptions.forEachIndexed { index, s ->
+                                            Text(s)
+                                            if (index < event.homework.descriptions.lastIndex)
+                                                HorizontalDivider(
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 4.dp,
+                                                        vertical = 2.dp
+                                                    )
+                                                )
+                                        }
                                     }
                                 }
                             }
