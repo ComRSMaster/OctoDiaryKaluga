@@ -33,14 +33,19 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.MenuOpen
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
@@ -52,8 +57,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +71,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,6 +86,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import kotlinx.coroutines.delay
@@ -104,8 +113,13 @@ import kotlin.math.roundToInt
 
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 fun DaybookScreen() {
+    val dayPosition = rememberPagerState(
+        initialPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE })
+
+
     val recompositionTrigger = remember { mutableStateOf(false) }
     key(recompositionTrigger.value) {
         val eventCalendar = DataService.eventCalendar
@@ -193,7 +207,6 @@ fun DaybookScreen() {
                             it != -1
                         } ?: 0
                 }
-            val dayPosition = rememberPagerState(todayInitial, pageCount = { 7 })
             Column(Modifier.fillMaxSize()) {
                 DateSeeker(
                     weekPosition,
@@ -276,98 +289,161 @@ fun DateSeeker(
     addWeekAfter: (() -> Unit) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var sliderValue by remember { mutableFloatStateOf(dayPosition.currentPage.toFloat()) }
-    sliderValue = dayPosition.currentPage.toFloat()
-    ElevatedCard(
-        shape = MaterialTheme.shapes.medium.copy(
-            topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp)
-        )
+
+    var selectDate by rememberSaveable { mutableStateOf(false) }
+    if (selectDate) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { selectDate = false },
+            confirmButton = {
+                TextButton(
+                    onClick = { selectDate = false },
+                    enabled = datePickerState.selectedDateMillis != null
+                ) {
+                    Text("Продолжить")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { selectDate = false }
+                ) {
+                    Text("Отмена")
+                }
+            }) {
+            DatePicker(state = datePickerState)
+        }
+    }
+//    ElevatedCard(
+//        shape = MaterialTheme.shapes.medium.copy(
+//            topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp)
+//        )
+//    ) {
+//        Column(
+//            Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text(
+//                stringResource(id = R.string.weeks), style = MaterialTheme.typography.labelLarge
+//            )
+//            Row {
+//                TooltipBox(
+//                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+//                    tooltip = {
+//                        PlainTooltip {
+//                            Text(stringResource(id = R.string.add_week_before))
+//                        }
+//                    },
+//                    state = rememberTooltipState()
+//                ) {
+//                    val loadingFinished = remember { mutableStateOf(true) }
+//                    IconButton(onClick = {
+//                        loadingFinished.value = false
+//                        addWeekBefore { loadingFinished.value = true }
+//                    }, enabled = loadingFinished.value) {
+//                        AnimatedVisibility(visible = loadingFinished.value) {
+//                            Icon(
+//                                Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+//                                stringResource(id = R.string.add_week_before),
+//                                tint = MaterialTheme.colorScheme.primary
+//                            )
+//                        }
+//                        AnimatedVisibility(visible = !loadingFinished.value) {
+//                            CircularProgressIndicator(
+//                                Modifier
+//                                    .size(20.dp, 20.dp),
+//                                strokeCap = StrokeCap.Round
+//                            )
+//                        }
+//                    }
+//                }
+//                Slider(
+//                    modifier = Modifier.weight(1f, true),
+//                    value = weekPosition.value,
+//                    onValueChange = { weekPosition.value = it },
+//                    valueRange = 0f..size.toFloat(),
+//                    steps = size - 1
+//                )
+//                TooltipBox(
+//                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+//                    tooltip = {
+//                        PlainTooltip {
+//                            Text(stringResource(id = R.string.add_week_after))
+//                        }
+//                    },
+//                    state = rememberTooltipState()
+//                ) {
+//                    val loadingFinished = remember { mutableStateOf(true) }
+//                    IconButton(onClick = {
+//                        loadingFinished.value = false
+//                        addWeekAfter { loadingFinished.value = true }
+//                    }, enabled = loadingFinished.value) {
+//                        AnimatedVisibility(visible = loadingFinished.value) {
+//                            Icon(
+//                                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+//                                stringResource(id = R.string.add_week_after),
+//                                tint = MaterialTheme.colorScheme.primary
+//                            )
+//                        }
+//                        AnimatedVisibility(visible = !loadingFinished.value) {
+//                            CircularProgressIndicator(
+//                                Modifier
+//                                    .size(20.dp, 20.dp),
+//                                strokeCap = StrokeCap.Round
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//            Slider(value = sliderValue, onValueChange = {
+//                sliderValue = it
+//            }, onValueChangeFinished = {
+//                coroutineScope.launch {
+//                    dayPosition.animateScrollToPage(sliderValue.roundToInt())
+//                }
+//            }, valueRange = 0f..6f, steps = 5
+//            )
+//            Text(
+//                stringResource(id = R.string.days), style = MaterialTheme.typography.labelLarge
+//            )
+//        }
+//    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                stringResource(id = R.string.weeks), style = MaterialTheme.typography.labelLarge
-            )
-            Row {
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text(stringResource(id = R.string.add_week_before))
-                        }
-                    },
-                    state = rememberTooltipState()
-                ) {
-                    val loadingFinished = remember { mutableStateOf(true) }
-                    IconButton(onClick = {
-                        loadingFinished.value = false
-                        addWeekBefore { loadingFinished.value = true }
-                    }, enabled = loadingFinished.value) {
-                        AnimatedVisibility(visible = loadingFinished.value) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                                stringResource(id = R.string.add_week_before),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        AnimatedVisibility(visible = !loadingFinished.value) {
-                            CircularProgressIndicator(
-                                Modifier
-                                    .size(20.dp, 20.dp),
-                                strokeCap = StrokeCap.Round
-                            )
-                        }
-                    }
-                }
-                Slider(
-                    modifier = Modifier.weight(1f, true),
-                    value = weekPosition.value,
-                    onValueChange = { weekPosition.value = it },
-                    valueRange = 0f..size.toFloat(),
-                    steps = size - 1
-                )
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip {
-                            Text(stringResource(id = R.string.add_week_after))
-                        }
-                    },
-                    state = rememberTooltipState()
-                ) {
-                    val loadingFinished = remember { mutableStateOf(true) }
-                    IconButton(onClick = {
-                        loadingFinished.value = false
-                        addWeekAfter { loadingFinished.value = true }
-                    }, enabled = loadingFinished.value) {
-                        AnimatedVisibility(visible = loadingFinished.value) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                stringResource(id = R.string.add_week_after),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        AnimatedVisibility(visible = !loadingFinished.value) {
-                            CircularProgressIndicator(
-                                Modifier
-                                    .size(20.dp, 20.dp),
-                                strokeCap = StrokeCap.Round
-                            )
-                        }
-                    }
-                }
+        IconButton(onClick = {
+            coroutineScope.launch {
+                dayPosition.animateScrollToPage(dayPosition.currentPage - 1)
             }
-            Slider(value = sliderValue, onValueChange = {
-                sliderValue = it
-            }, onValueChangeFinished = {
-                coroutineScope.launch {
-                    dayPosition.animateScrollToPage(sliderValue.roundToInt())
-                }
-            }, valueRange = 0f..6f, steps = 5
+        }) {
+            Icon(
+                Icons.AutoMirrored.Rounded.ArrowBackIos,
+                "Предыдущий день"
             )
-            Text(
-                stringResource(id = R.string.days), style = MaterialTheme.typography.labelLarge
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { selectDate = true },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Сегодня", style = MaterialTheme.typography.titleMedium)
+//            Text(
+//                text = SimpleDateFormat(
+//                    "d MMMM, EEEE", LocalConfiguration.current.locales[0]
+//                ).format(it),
+//                style = MaterialTheme.typography.labelMedium
+//            )
+        }
+        IconButton(onClick = {
+            coroutineScope.launch {
+                dayPosition.animateScrollToPage(dayPosition.currentPage + 1)
+            }
+        }) {
+            Icon(
+                Icons.AutoMirrored.Rounded.ArrowForwardIos,
+                "Следующий день"
             )
         }
     }
@@ -430,34 +506,14 @@ fun EventItem(event: Event) {
                 top = 16.dp, start = 16.dp, end = 16.dp
             )
         ) {
-            Row(
+            Text(
+                event.subjectName ?: (event.title ?: ""),
                 Modifier
-                    .padding(
-                        bottom = 16.dp
-                    )
                     .fillMaxWidth()
-            ) {
-                Text(
-                    event.subjectName ?: (event.title ?: ""),
-                    Modifier
-                        .weight(1f)
-                        .animateContentSize(),
-                    maxLines = if (!isExpanded) 2 else Int.MAX_VALUE,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    if (event.isAllDay != true) stringResource(
-                        id = R.string.time_from_to,
-                        event.startAt.parseLongDate().formatToTime(),
-                        event.finishAt.parseLongDate().formatToTime()
-                    ) else stringResource(id = R.string.all_day),
-                    Modifier
-                        .alpha(0.8f)
-                        .weight(1f),
-                    textAlign = TextAlign.End
-                )
-
-            }
+                    .animateContentSize(),
+                maxLines = if (!isExpanded) 2 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis
+            )
             AnimatedVisibility(
                 visible = isExpanded, enter = enterTransition, exit = exitTransition
             ) {
@@ -470,33 +526,24 @@ fun EventItem(event: Event) {
                                 )
                                 .fillMaxWidth()
                         ) {
-                            if (event.roomNumber != null) {
-                                Row {
-                                    Text(
-                                        stringResource(R.string.lesson_location),
-                                        Modifier
-                                            .padding(end = 4.dp)
-                                            .alpha(0.8f)
-                                    )
-                                    Text(event.roomNumber)
-                                }
-                            }
                             if (event.homework != null && event.homework.descriptions.isNotEmpty()) {
                                 Column {
                                     Text(
                                         stringResource(R.string.homework),
                                         Modifier.alpha(0.8f)
                                     )
-                                    Column(modifier = Modifier.padding(4.dp)) {
-                                        event.homework.descriptions.forEachIndexed { index, s ->
-                                            Text(s)
-                                            if (index < event.homework.descriptions.lastIndex)
-                                                HorizontalDivider(
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 4.dp,
-                                                        vertical = 2.dp
-                                                    )
-                                                )
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            top = 4.dp,
+                                            start = 4.dp,
+                                            end = 4.dp
+                                        )
+                                    ) {
+                                        event.homework.descriptions.forEach {
+                                            Text(
+                                                it,
+                                                modifier = Modifier.padding(bottom = 4.dp)
+                                            )
                                         }
                                     }
                                 }
@@ -508,19 +555,6 @@ fun EventItem(event: Event) {
                                     }
                                 }
                             }
-                        }
-                        FilledTonalIconButton(
-                            onClick = {
-                                modalBottomSheetContentLive.postValue { LessonSheetContent(event.id) }
-                                modalBottomSheetStateLive.postValue(true)
-                            }, modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 16.dp)
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.MenuOpen,
-                                stringResource(id = R.string.expand)
-                            )
                         }
                     }
 
@@ -539,7 +573,7 @@ fun EventItem(event: Event) {
                                 Text(
                                     stringResource(R.string.lesson_location),
                                     Modifier
-                                        .padding(end = 3.dp)
+                                        .padding(end = 4.dp)
                                         .alpha(0.8f)
                                 )
                                 Text(event.place)
@@ -610,6 +644,32 @@ fun EventItem(event: Event) {
                             }
                         }
                     }
+                }
+            }
+
+            Row(
+                Modifier
+                    .padding(
+                        bottom = 16.dp
+                    )
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    if (event.isAllDay != true) stringResource(
+                        id = R.string.time_from_to,
+                        event.startAt.parseLongDate().formatToTime(),
+                        event.finishAt.parseLongDate().formatToTime()
+                    ) else stringResource(id = R.string.all_day),
+                    Modifier
+                        .alpha(0.8f)
+                        .padding(end = 8.dp)
+                )
+                if (event.roomNumber != null) {
+                    Text(
+                        "к${event.roomNumber}",
+                        Modifier
+                            .alpha(0.8f)
+                    )
                 }
             }
         }

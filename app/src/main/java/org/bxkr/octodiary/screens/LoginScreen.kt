@@ -60,7 +60,7 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState(pageCount = { 2 })
-    var currentPage by rememberSaveable { mutableStateOf(Diary.MES) }
+    var currentPage by rememberSaveable { mutableStateOf(Diary.MySchool) }
     val coroutineScope = rememberCoroutineScope()
     var alertTrigger by remember { mutableStateOf(false) }
     var alertAction by remember { mutableStateOf({}) }
@@ -206,7 +206,7 @@ fun ShowAlertIfFoundReceivers(onDismiss: () -> Unit) {
     }
 }
 
-@Preview
+@Preview(locale = "ru")
 @Composable
 fun LoginPreview() {
     OctoDiaryTheme {

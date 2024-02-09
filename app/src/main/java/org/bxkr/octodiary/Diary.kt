@@ -43,51 +43,6 @@ enum class Diary(
     val primaryLogInFunction: (Context) -> Unit,
     val alternativeLogIn: @Composable (Modifier, (() -> Unit) -> Unit) -> Unit
 ) {
-    MES(
-        R.string.mes,
-        Icons.Rounded.LocationCity,
-        listOf(R.color.mosru_primary, R.color.mosru_primary),
-        R.string.log_in_on_mosru,
-        { MESLoginService.logInWithMosRu(it) },
-        @Composable { modifier, onClick ->
-            Context.MODE_PRIVATE
-            val context = androidx.compose.ui.platform.LocalContext.current
-            Row(
-                modifier = modifier
-                    .width(TextFieldDefaults.MinWidth)
-                    .height(TextFieldDefaults.MinHeight)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                colorResource(R.color.blue),
-                                colorResource(R.color.red)
-                            )
-                        ), MaterialTheme.shapes.medium
-                    )
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable {
-                        onClick {
-                            MySchoolLoginService.logInWithEsia(
-                                context,
-                                MES
-                            )
-                        }
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Rounded.OpenInNew,
-                    contentDescription = stringResource(id = R.string.log_in),
-                    modifier = Modifier.padding(start = 16.dp, end = 8.dp),
-                    tint = Color.White
-                )
-                Text(
-                    stringResource(id = R.string.log_in_on_gosuslugi),
-                    color = Color.White
-                )
-            }
-        }
-    ),
     MySchool(
         R.string.myschool,
         Icons.Rounded.Landscape,
@@ -140,6 +95,51 @@ enum class Diary(
                     .padding(top = 32.dp)
             ) {
                 Text(stringResource(id = R.string.log_in))
+            }
+        }
+    ),
+    MES(
+        R.string.mes,
+        Icons.Rounded.LocationCity,
+        listOf(R.color.mosru_primary, R.color.mosru_primary),
+        R.string.log_in_on_mosru,
+        { MESLoginService.logInWithMosRu(it) },
+        @Composable { modifier, onClick ->
+            Context.MODE_PRIVATE
+            val context = androidx.compose.ui.platform.LocalContext.current
+            Row(
+                modifier = modifier
+                    .width(TextFieldDefaults.MinWidth)
+                    .height(TextFieldDefaults.MinHeight)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(
+                                colorResource(R.color.blue),
+                                colorResource(R.color.red)
+                            )
+                        ), MaterialTheme.shapes.medium
+                    )
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable {
+                        onClick {
+                            MySchoolLoginService.logInWithEsia(
+                                context,
+                                MES
+                            )
+                        }
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Rounded.OpenInNew,
+                    contentDescription = stringResource(id = R.string.log_in),
+                    modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+                    tint = Color.White
+                )
+                Text(
+                    stringResource(id = R.string.log_in_on_gosuslugi),
+                    color = Color.White
+                )
             }
         }
     )
