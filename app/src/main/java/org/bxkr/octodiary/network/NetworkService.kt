@@ -54,9 +54,13 @@ object NetworkService {
         const val MOS_SCHOOL = "https://school.mos.ru/"
         const val MOS_SCHOOL_API = "https://school.mos.ru/api/"
 
-        const val MOSREG_SECONDARY = "https://authedu.mosreg.ru/"
-        const val MOSREG_SCHOOL_API = "https://api.myschool.mosreg.ru/"
-        const val MOSREG_DNEVNIK = "https://myschool.mosreg.ru/"
+        const val MOSREG_SECONDARY = "https://education.admoblkaluga.ru/"
+        const val MOSREG_SCHOOL_API = "https://api.admoblkaluga.ru/"
+        const val MOSREG_DNEVNIK = "https://dnevnik.admoblkaluga.ru/"
+
+//        const val MOSREG_SECONDARY = "https://authedu.mosreg.ru/"
+//        const val MOSREG_SCHOOL_API = "https://api.myschool.mosreg.ru/"
+//        const val MOSREG_DNEVNIK = "https://myschool.mosreg.ru/"
 
         const val EXTERNAL_API = "https://octodiary.dsop.online/"
     }

@@ -140,7 +140,7 @@
     <string name="repeat_pin">Повторите свой код-пароль</string>
     <string name="pins_are_diff">Код-пароли не совпадают</string>
     <string name="no_description">Нет описания</string>
-    <string name="lesson_location">Место проведения</string>
+    <string name="lesson_location">Кабинет</string>
     <string name="at_time">в</string>
     <string name="mark_created">Выставлена %s</string>
     <string name="all_day">Весь день</string>
