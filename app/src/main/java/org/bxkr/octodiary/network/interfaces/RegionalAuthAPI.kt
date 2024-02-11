@@ -20,7 +20,7 @@ interface RegionalAuthAPI {
         override fun getBaseUrl(diary: Diary): String {
             return when (diary) {
                 Diary.MES -> throw NoSuchFieldError()
-                Diary.MySchool -> BaseUrl.MOSREG_SECONDARY
+                Diary.MySchool -> BaseUrl.Kaluga.MOSREG_SECONDARY
             }
         }
     }

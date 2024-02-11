@@ -43,7 +43,7 @@ object MESLoginService {
                 "client_id" to body.clientId,
                 "client_secret" to body.clientSecret
             )
-            val openUri = Uri.parse(NetworkService.BaseUrl.MOS_AUTH + "sps/oauth/ae")
+            val openUri = Uri.parse(NetworkService.BaseUrl.MOS.MOS_AUTH + "sps/oauth/ae")
                 .buildUpon()
                 .appendQueryParameter("scope", MESAPIConfig.SCOPE)
                 .appendQueryParameter("access_type", MESAPIConfig.ACCESS_TYPE)

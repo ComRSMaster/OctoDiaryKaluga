@@ -21,8 +21,8 @@ interface DSchoolAPI {
     companion object : BaseUrls() {
         override fun getBaseUrl(diary: Diary): String {
             return when (diary) {
-                Diary.MES -> BaseUrl.MOS_DNEVNIK
-                Diary.MySchool -> BaseUrl.MOSREG_DNEVNIK
+                Diary.MES -> BaseUrl.MOS.MOS_DNEVNIK
+                Diary.MySchool -> BaseUrl.Kaluga.MOSREG_DNEVNIK
             }
         }
     }

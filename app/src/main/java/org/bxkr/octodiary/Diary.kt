@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import org.bxkr.octodiary.network.MESLoginService
 import org.bxkr.octodiary.network.MySchoolLoginService
 import org.bxkr.octodiary.network.MySchoolLoginService.logInWithPassword
+import org.bxkr.octodiary.widget.button.GosuslugiLogin
 
 enum class Diary(
     @StringRes val title: Int,
@@ -49,44 +50,7 @@ enum class Diary(
         listOf(R.color.mosru_primary, R.color.mosru_primary),
         R.string.log_in_on_mosru,
         { MESLoginService.logInWithMosRu(it) },
-        @Composable { modifier, onClick ->
-            Context.MODE_PRIVATE
-            val context = androidx.compose.ui.platform.LocalContext.current
-            Row(
-                modifier = modifier
-                    .width(TextFieldDefaults.MinWidth)
-                    .height(TextFieldDefaults.MinHeight)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                colorResource(R.color.blue),
-                                colorResource(R.color.red)
-                            )
-                        ), MaterialTheme.shapes.medium
-                    )
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable {
-                        onClick {
-                            MySchoolLoginService.logInWithEsia(
-                                context,
-                                MES
-                            )
-                        }
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Rounded.OpenInNew,
-                    contentDescription = stringResource(id = R.string.log_in),
-                    modifier = Modifier.padding(start = 16.dp, end = 8.dp),
-                    tint = Color.White
-                )
-                Text(
-                    stringResource(id = R.string.log_in_on_gosuslugi),
-                    color = Color.White
-                )
-            }
-        }
+        @Composable { modifier, onClick -> GosuslugiLogin(modifier, onClick) }
     ),
     MySchool(
         R.string.myschool,

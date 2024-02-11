@@ -1,5 +1,6 @@
 package org.bxkr.octodiary.screens
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -17,7 +18,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,11 +64,14 @@ fun LoginScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val pagerState = rememberPagerState(pageCount = { 2 })
-    var currentPage by rememberSaveable { mutableStateOf(Diary.MySchool) }
+    var currentPageIndex by rememberSaveable { mutableStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     var alertTrigger by remember { mutableStateOf(false) }
     var alertAction by remember { mutableStateOf({}) }
+    var dropdownExpanded by rememberSaveable { mutableStateOf(false) }
+
+    val coffeeDrinks = arrayOf("Americano", "Cappuccino", "Espresso", "Latte", "Mocha")
+    var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
 
     if (alertTrigger) {
         ShowAlertIfFoundReceivers {
@@ -72,17 +80,41 @@ fun LoginScreen(
         }
     }
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            currentPage = Diary.values()[page]
-        }
-    }
-
     Column(modifier.fillMaxSize()) {
+        ExposedDropdownMenuBox(expanded = dropdownExpanded, onExpandedChange = {
+            dropdownExpanded = !dropdownExpanded
+        }) {
+
+            TextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = dropdownExpanded,
+                onDismissRequest = { dropdownExpanded = false }
+            ) {
+                coffeeDrinks.forEachIndexed { ind, item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item) },
+                        onClick = {
+                            currentPageIndex = ind
+                            selectedText = item
+                            dropdownExpanded = false
+                            Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+        }
+        Diary.entries[currentPageIndex].alternativeLogIn
         PrimaryTabRow(
             selectedTabIndex = currentPage.ordinal
         ) {
-            Diary.values().forEach {
+            Diary.entries.forEach {
                 Tab(
                     selected = currentPage == it,
                     onClick = {
@@ -108,13 +140,13 @@ fun LoginScreen(
                         .align(Alignment.CenterHorizontally)
                         .background(
                             Brush.linearGradient(
-                                Diary.values()[page].primaryLogGradientColors
+                                Diary.entries[page].primaryLogGradientColors
                                     .map { colorResource(it) }), MaterialTheme.shapes.medium
                         )
                         .clip(MaterialTheme.shapes.medium)
                         .clickable {
                             alertAction = {
-                                Diary.values()[currentPage.ordinal].primaryLogInFunction(context)
+                                Diary.entries[currentPage.ordinal].primaryLogInFunction(context)
                             }
                             alertTrigger = true
                         },
@@ -137,7 +169,7 @@ fun LoginScreen(
                         )
                     }
                     Text(
-                        stringResource(id = Diary.values()[page].primaryLogInLabel),
+                        stringResource(id = Diary.entries[page].primaryLogInLabel),
                         color = Color.White
                     )
                 }
@@ -167,7 +199,7 @@ fun LoginScreen(
                     )
                 }
 
-                Diary.values()[page].alternativeLogIn(
+                Diary.entries[page].alternativeLogIn(
                     Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     alertAction = it

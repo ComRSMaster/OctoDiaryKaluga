@@ -16,13 +16,13 @@ import retrofit2.http.Query
 /**
  * Authorization gate of mos.ru.
  *
- * baseUrl - [BaseUrl.MOS_AUTH]
+ * baseUrl - [BaseUrl.MOS.MOS_AUTH]
  */
 interface MosAuthAPI {
     companion object : BaseUrls() {
         override fun getBaseUrl(diary: Diary): String {
             return when (diary) {
-                Diary.MES -> BaseUrl.MOS_AUTH
+                Diary.MES -> BaseUrl.MOS.MOS_AUTH
                 Diary.MySchool -> throw NoSuchFieldError()
             }
         }

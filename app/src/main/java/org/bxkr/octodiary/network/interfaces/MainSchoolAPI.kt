@@ -30,7 +30,7 @@ interface MainSchoolAPI {
         override fun getBaseUrl(diary: Diary): String {
             return when (diary) {
                 Diary.MES -> BaseUrl.MOS_SCHOOL_API
-                Diary.MySchool -> BaseUrl.MOSREG_SCHOOL_API
+                Diary.MySchool -> BaseUrl.Kaluga.MOSREG_SCHOOL_API
             }
         }
     }

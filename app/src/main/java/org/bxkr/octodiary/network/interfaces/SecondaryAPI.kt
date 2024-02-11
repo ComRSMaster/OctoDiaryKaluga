@@ -25,7 +25,7 @@ interface SecondaryAPI {
         override fun getBaseUrl(diary: Diary): String {
             return when (diary) {
                 Diary.MES -> BaseUrl.MOS_SCHOOL
-                Diary.MySchool -> BaseUrl.MOSREG_SECONDARY
+                Diary.MySchool -> BaseUrl.Kaluga.MOSREG_SECONDARY
             }
         }
 
